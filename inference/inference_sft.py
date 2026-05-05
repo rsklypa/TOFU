@@ -7,7 +7,7 @@ from tqdm import tqdm
 import json
 from huggingface_hub import upload_file
 
-from data import formatting
+from data import formatting, prompt_formats
 
 
 class Inference:
@@ -127,7 +127,7 @@ class Inference:
             if "correct_response" in item.keys():
                 entry["correct_response"] = item["correct_response"]
             if "correct_solution" in item.keys():
-                entry["correct_solution"] = formatting.to_bbox(item["correct_solution"])
+                entry["correct_solution"] = prompt_formats.to_boxed(item["correct_solution"])
          
             with open(output_file, "a", encoding="utf-8") as f:
                 f.write(json.dumps(entry, ensure_ascii=False) + "\n")
