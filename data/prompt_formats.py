@@ -1,10 +1,4 @@
 
-
-def to_boxed(ans):
-    ans = ans.strip()
-    return f"\\boxed{{{ans}}}"
-
-
 PROMPT = """
 Below is an instruction that describes a task. Write a response that appropriately completes the request. Input might contain additional information.
 Instruction: 
@@ -20,6 +14,7 @@ Input:
 Response: 
 <|response|>
 """
+
 
 ANSWER = """ {} 
 <|/response|>
@@ -133,6 +128,11 @@ Solution:
 ANSWER_COT = """ {} 
 <|/solution|>
 """
+
+
+def to_boxed(ans):
+    ans = ans.strip()
+    return f"\\boxed{{{ans}}}"
 
 
 def build_mmlu_prompt(question: str, choices: list, labels=None):

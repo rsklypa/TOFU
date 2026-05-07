@@ -64,13 +64,9 @@ class Evaluator:
 
         wr = correct / total if total > 0 else 0.0
 
-
         score_path = os.path.join(self.output_dir, "score.jsonl")
         with open(score_path, "w", encoding="utf-8") as f:
-            f.write(json.dumps({
-                # "model_id": self.model_id,
-                "wr": wr
-            }, ensure_ascii=False) + "\n")
+            f.write(json.dumps({"wr": wr}, ensure_ascii=False) + "\n")
 
         if self.repo_id is not None:
             upload_file(path_or_fileobj=score_path, path_in_repo=f"{self.model_id}/score.jsonl",repo_id=self.repo_id, repo_type="dataset")

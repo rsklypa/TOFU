@@ -87,7 +87,7 @@ class FormatARC:
 class FormatShortStories:
     def __init__(self, split):
         self.split = split
-        self.data = load_dataset("PowCal/small-stories-v1", split=self.split)
+        self.data = load_dataset("TOFU-SFT/Short-Stories", split=self.split)
 
         self.data = self.data.filter(lambda x: x["prompt"].strip() != "")
 
@@ -115,7 +115,7 @@ class FormatShortStories:
 class FormatSmallPrompts():
     def __init__(self, split):
         self.split = split
-        self.data = load_dataset("PowCal/small-prompts-v1", split=self.split)
+        self.data = load_dataset("TOFU-SFT/Small-Prompts", split=self.split)
 
         self.data = self.data.filter(lambda x: x["instruction"].strip() != "")
 
@@ -164,6 +164,26 @@ class FormatNoveltyBench:
         "prompt": x["prompt"].strip()
         },
         remove_columns=["id"])
+        
+        return data
+    
+
+class FormatNumina:
+    def __init__(self, tokenizer):
+        self.tokenizer = tokenizer
+        self.data = load_dataset("TOFU-SFT/NuminaMath-CoT-100k", split="train")
+
+        self.data = self.data.filter(lambda x: x["problem"].strip() != "")
+        self.data = self.data.filter(lambda x: x["solution"].strip() != "")
+
+    @property
+    def sft_format(self):
+
+        data = self.data.map(lambda x: {
+        "prompt": prompt_formats.PROMPT_COT.format(x["problem"].strip()),
+        "completion": prompt_formats.ANSWER_COT.format(x["solution"].strip()) + self.tokenizer.eos_token
+        },
+        remove_columns=["problem", "solution", "source"])
         
         return data
 
@@ -245,23 +265,31 @@ class FormatMinerva:
         return data
 
 
-class FormatNumina:
-    def __init__(self, tokenizer):
-        self.tokenizer = tokenizer
-        self.data = load_dataset("PowCal/NuminaMath-CoT-100k", split="train")
-
-        self.data = self.data.filter(lambda x: x["problem"].strip() != "")
-        self.data = self.data.filter(lambda x: x["solution"].strip() != "")
+class FormatMaliciousInstruct:
+    def __init__(self, split):
+        self.split = split
+        self.data = load_dataset("TOFU-SFT/MaliciousInstruct", split=self.split)
+        self.data = self.data.filter(lambda x: x["prompt"].strip() != "")
 
     @property
     def sft_format(self):
-
         data = self.data.map(lambda x: {
-        "prompt": prompt_formats.PROMPT_COT.format(x["problem"].strip()),
-        "completion": prompt_formats.ANSWER_COT.format(x["solution"].strip()) + self.tokenizer.eos_token
-        },
-        remove_columns=["problem", "solution", "source"])
-        
+            "prompt": prompt_formats.PROMPT.format(x["prompt"].strip(), ""),
+        })
+        return data
+
+
+class FormatHarmBench:
+    def __init__(self, split):
+        self.split = split
+        self.data = load_dataset("TOFU-SFT/HarmBench", split=self.split)
+        self.data = self.data.filter(lambda x: x["prompt"].strip() != "")
+
+    @property
+    def sft_format(self):
+        data = self.data.map(lambda x: {
+            "prompt": prompt_formats.PROMPT.format(x["prompt"].strip(), ""),
+        }, remove_columns=["__index_level_0__"])
         return data
 
 
@@ -310,57 +338,3 @@ class FormatEval:
             judge_prompts = [prompt_formats.JUDGE_STORY.format(cleaned_instruction, cleaned_response) for cleaned_response in cleaned_responses]
             formatted_data.append({'instruction': cleaned_instruction, 'response': cleaned_responses, 'judge_prompt': judge_prompts})
         return formatted_data
-    
-
-class FormatTruthfulQA:
-    def __init__(self, split, tokenizer):
-        self.split = split
-        self.tokenizer = tokenizer
-        self.data = load_dataset("domenicrosati/TruthfulQA", split=self.split)
-
-        self.data = self.data.filter(lambda x: x["Best Answer"].strip() != "")
-        self.data = self.data.filter(lambda x: x["Question"].strip() != "")
-
-
-    @property
-    def sft_format(self):
-
-        data = self.data.map(lambda x: {
-        "prompt": prompt_formats.PROMPT.format(x["Question"].strip(), ""),
-        "completion": prompt_formats.ANSWER.format(x["Best Answer"].strip()) + self.tokenizer.eos_token
-        },
-        remove_columns=["Type", "Category", "Correct Answers", "Incorrect Answers", "Source", "Question", "Best Answer"])
-
-        return data
-
-def to_bbox(ans):
-    ans = ans.strip()
-    return f"\\boxed{{{ans}}}"
-
-
-class FormatMaliciousInstruct:
-    def __init__(self, split):
-        self.split = split
-        self.data = load_dataset("PowCal/MaliciousInstruct", split=self.split)
-        self.data = self.data.filter(lambda x: x["prompt"].strip() != "")
-
-    @property
-    def sft_format(self):
-        data = self.data.map(lambda x: {
-            "prompt": prompt_formats.PROMPT.format(x["prompt"].strip(), ""),
-        })
-        return data
-
-
-class FormatHarmBench:
-    def __init__(self, split):
-        self.split = split
-        self.data = load_dataset("PowCal/HarmBench100", split=self.split)
-        self.data = self.data.filter(lambda x: x["prompt"].strip() != "")
-
-    @property
-    def sft_format(self):
-        data = self.data.map(lambda x: {
-            "prompt": prompt_formats.PROMPT.format(x["prompt"].strip(), ""),
-        }, remove_columns=["__index_level_0__"])
-        return data
