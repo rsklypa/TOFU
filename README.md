@@ -7,7 +7,14 @@ This repository contains the official implementation for the paper [Diversity in
 While Supervised Fine-Tuning (SFT) is essential for aligning Large Language Models with user intent, it often inadvertently suppresses generative diversity. Our research attributes this decline to two primary drivers: the neglect of low-frequency patterns within datasets and the forgetting of preexisting knowledge. To address these challenges, we introduce **Tempered Focal (TOFU) loss**, a principled objective designed to mitigate diversity collapse via gradient reweighting and temperature adjustment:
 
 $$
-\mathcal{L}_{\mathrm{TOFU}}(\theta) = - \mathbb{E}_{x \in \mathcal{D}} \left [ \mathrm{sg} \left [ g(p_\theta,\gamma) \right ] \beta \log p^\beta_{\theta} \right ].
+\mathcal{L}_{\mathrm{TOFU}}(\theta)
+=
+-
+\mathbb{E}_{x \in \mathcal{D}}
+\left[
+\operatorname{sg}\!\left(g(p_\theta,\gamma)\right)
+\, \beta \log p_\theta^\beta
+\right]
 $$
 
 In this formulation, focal term $g(p, \gamma) = (1-p)^\gamma - \gamma p (1-p)^{\gamma-1} \log p$ is detached from the gradient computation.
