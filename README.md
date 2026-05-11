@@ -6,18 +6,11 @@ This repository contains the official implementation for the paper [Diversity in
 
 While Supervised Fine-Tuning (SFT) is essential for aligning Large Language Models with user intent, it often inadvertently suppresses generative diversity. Our research attributes this decline to two primary drivers: the neglect of low-frequency patterns within datasets and the forgetting of preexisting knowledge. To address these challenges, we introduce **Tempered Focal (TOFU) loss**, a principled objective designed to mitigate diversity collapse via gradient reweighting and temperature adjustment:
 
-$$
-\mathcal{L}_{\mathrm{TOFU}}(\theta)
-=
--
-\mathbb{E}_{x \in \mathcal{D}}
-\left[
-\operatorname{sg}\!\left(g(p_\theta,\gamma)\right)
-\, \beta \log p_\theta^\beta
-\right]
-$$
+<p align="center">
+  <img src="assets/eq_tofu.svg" width="300">
+</p>
 
-In this formulation, focal term $g(p, \gamma) = (1-p)^\gamma - \gamma p (1-p)^{\gamma-1} \log p$ is detached from the gradient computation.
+In this formulation, term <img src="assets/eq_term.svg"  style="vertical-align: -0.2em; height: 1.2em;"> is detached from the gradient computation.
 
 
 Tempered Focal loss serves as a seamless, drop-in replacement for traditional Cross-Entropy. Across our creative writing and instruction-following benchmarks, TOFU achieves superior diversity while maintaining highly competitive response quality. Furthermore, we find that in mathematical Chain-of-Thought reasoning, TOFU encourages a higher exploration mode, thereby increasing the probability of capturing correct solutions. Crucially, this expanded diversity does not come at the cost of factual integrity or safety alignment. Altogether, these results position TOFU as a robust framework for improving model expressivity and functional utility across a wide range of downstream applications.
