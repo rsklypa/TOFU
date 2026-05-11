@@ -10,7 +10,7 @@ While Supervised Fine-Tuning (SFT) is essential for aligning Large Language Mode
   <img src="assets/eq_tofu.svg" width="300">
 </p>
 
-In this formulation, term <img src="assets/eq_term.svg"  style="vertical-align: -0.2em; height: 1.2em;"> is detached from the gradient computation.
+In this formulation, term <img align="top" src="assets/eq_term.svg"> is detached from the gradient computation.
 
 
 Tempered Focal loss serves as a seamless, drop-in replacement for traditional Cross-Entropy. Across our creative writing and instruction-following benchmarks, TOFU achieves superior diversity while maintaining highly competitive response quality. Furthermore, we find that in mathematical Chain-of-Thought reasoning, TOFU encourages a higher exploration mode, thereby increasing the probability of capturing correct solutions. Crucially, this expanded diversity does not come at the cost of factual integrity or safety alignment. Altogether, these results position TOFU as a robust framework for improving model expressivity and functional utility across a wide range of downstream applications.
