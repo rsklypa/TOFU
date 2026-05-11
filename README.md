@@ -3,7 +3,7 @@ This repository contains the official implementation for the paper [Diversity in
 
 
 ## Overview
-
+### Formulation
 While Supervised Fine-Tuning (SFT) is essential for aligning Large Language Models with user intent, it often inadvertently suppresses generative diversity. Our research attributes this decline to two primary drivers: the neglect of low-frequency patterns within datasets and the forgetting of preexisting knowledge. To address these challenges, we introduce **Tempered Focal (TOFU) loss**, a principled objective designed to mitigate diversity collapse via gradient reweighting and temperature adjustment:
 
 <p align="center">
@@ -12,12 +12,22 @@ While Supervised Fine-Tuning (SFT) is essential for aligning Large Language Mode
 
 In this formulation, term <img align="top" src="assets/eq_term.svg"> is detached from the gradient computation.
 
+### Performance
+Across the creative writing and instruction-following benchmarks, TOFU achieves superior diversity while maintaining highly competitive response quality. Furthermore, we find that in mathematical Chain-of-Thought reasoning, TOFU encourages a higher exploration mode, thereby increasing the probability of capturing correct solutions. Crucially, this expanded diversity does not come at the cost of factual integrity or safety alignment. Altogether, these results position TOFU as a robust framework for improving model expressivity and functional utility across a wide range of downstream applications.
 
-Tempered Focal loss serves as a seamless, drop-in replacement for traditional Cross-Entropy. Across our creative writing and instruction-following benchmarks, TOFU achieves superior diversity while maintaining highly competitive response quality. Furthermore, we find that in mathematical Chain-of-Thought reasoning, TOFU encourages a higher exploration mode, thereby increasing the probability of capturing correct solutions. Crucially, this expanded diversity does not come at the cost of factual integrity or safety alignment. Altogether, these results position TOFU as a robust framework for improving model expressivity and functional utility across a wide range of downstream applications.
+### Utilization
+Our loss function is a seamless, drop-in replacement for the standard SFT loss. To use it with TRL simply copy the function from ```train/tofu_loss.py``` into your training code and pass it to ```SFTTrainer```:
+```python
+trainer = SFTTrainer(
+    model=model,
+    args=SFTConfig(..., compute_loss_func=tofu_loss(gamma=..., beta=...)),
+    train_dataset=dataset,
+)
+```
+While gamma and beta are tunable, the default values (```gamma=3.0, beta=0.8```) were fixed upfront and used as-is across all models and benchmarks in our experiments, achieving state-of-the-art performance throughout. For precision-sensitive applications such as math reasoning, we recommend lowering the inference temperature, e.g. ```T=0.3``` as used in our math reasoning experiments.
 
 
-
-## Utilization
+## Experiments Reproduction
 
 ### Installation
 Run the following to create a conda environment with the necessary dependencies.
@@ -47,10 +57,25 @@ You can quantize a model using the following command:
 python utils/quantize.py --model /path/to/model --output_dir /path/to/output/directory
 ```
 
-### Training
+### Training & Inference
 After quantization, you can further train the model using:
 ```bash
 python experiments/train_q_sft.py [options]
 ```
 This supports training on datasets such as Alpaca and UltraFeedback, and allows selecting different methods, including CE, λ-PR, GEM, Focal Loss, and TOFU.
 Inference and evaluation scripts are available in the ```inference``` and ```evaluation``` directories.
+
+
+## Citation Information
+If you find this repository useful for your research, please consider citing our preprint:
+```
+@misc{klypa2026diversitylargelanguagemodels,
+      title={Diversity in Large Language Models under Supervised Fine-Tuning}, 
+      author={Roman Klypa and Oleksandr Cherednichenko},
+      year={2026},
+      eprint={2605.00195},
+      archivePrefix={arXiv},
+      primaryClass={cs.LG},
+      url={https://arxiv.org/abs/2605.00195}, 
+}
+```
