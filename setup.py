@@ -1,7 +1,7 @@
 from setuptools import setup
 
 setup(
-    name="cal",
+    name="tofu",
     packages=[
         'data',
         'inference',
